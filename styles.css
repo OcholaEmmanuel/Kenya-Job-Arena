@@ -1,0 +1,60 @@
+/* Color System */
+:root {
+    --navy-color: #0d233a;
+    --navy-hover: #153454;
+    --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.btn-navy {
+    background-color: var(--navy-color);
+    color: #ffffff;
+    border: none;
+}
+
+.btn-navy:hover {
+    background-color: var(--navy-hover);
+    color: #ffffff;
+}
+
+.btn-outline-navy {
+    border-color: var(--navy-color);
+    color: var(--navy-color);
+}
+
+.btn-outline-navy:hover {
+    background-color: var(--navy-color);
+    color: #ffffff;
+}
+
+.text-navy {
+    color: var(--navy-color);
+}
+
+.fs-7 { font-size: 0.85rem; }
+.fs-8 { font-size: 0.75rem; }
+
+.job-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+/* Footer Styles */
+.bg-navy {
+    background-color: var(--navy-color) !important;
+}
+
+.footer a:hover {
+    color: #ffc107 !important;
+    transition: color 0.2s ease-in-out;
+}

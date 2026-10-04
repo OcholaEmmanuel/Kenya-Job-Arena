@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaziHub Kenya - Find & Apply for Vacancies</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--navy-color);">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#" id="brandLogo">
+                <i class="bi bi-briefcase-fill text-warning me-2 fs-3"></i> KaziHub <span class="badge bg-warning text-dark ms-2 fs-8">KE</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active fw-semibold" href="#" id="navHome"><i class="bi bi-search me-1"></i> Browse Vacancies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold d-none" href="#" id="adminNavTab"><i class="bi bi-speedometer2 me-1"></i> Admin Portal</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <span id="userInfo" class="text-light small fw-bold d-none me-2"></span>
+                    <button class="btn btn-outline-light btn-sm px-3 rounded-pill" id="loginBtnNav" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="bi bi-person-lock me-1"></i> Admin Login
+                    </button>
+                    <button class="btn btn-danger btn-sm px-3 rounded-pill d-none" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4 flex-grow-1">
+
+        <div id="jobsView">
+            <div class="p-4 p-md-5 mb-4 rounded-3 text-white shadow-sm" style="background: linear-gradient(135deg, var(--navy-color) 0%, #1a365d 100%);">
+                <div class="col-lg-8">
+                    <h1 class="display-6 fw-bold">Find Verified Career Opportunities in Kenya</h1>
+                    <p class="lead text-light mb-0 fs-6">Explore thousands of open job vacancies across tech, healthcare, engineering, and finance with tailored CV and Cover Letter templates.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4 rounded-3">
+                <div class="card-body p-3">
+                    <div class="row g-2">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" id="searchInput" class="form-control bg-light border-start-0" placeholder="Search title, company, or skills...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="locationSelect" class="form-select bg-light">
+                                <option value="All">All Locations (Kenya)</option>
+                                <option value="Nairobi">Nairobi</option>
+                                <option value="Mombasa">Mombasa</option>
+                                <option value="Kisumu">Kisumu</option>
+                                <option value="Nakuru">Nakuru</option>
+                                <option value="Eldoret">Eldoret</option>
+                                <option value="Thika">Thika</option>
+                                <option value="Ruiru">Ruiru</option>
+                                <option value="Garissa">Garissa</option>
+                                <option value="Kakamega">Kakamega</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="categorySelect" class="form-select bg-light">
+                                <option value="All">All Categories</option>
+                                <option value="Technology & ICT">Technology & ICT</option>
+                                <option value="Banking & Finance">Banking & Finance</option>
+                                <option value="Healthcare & NGO">Healthcare & NGO</option>
+                                <option value="Engineering & Construction">Engineering & Construction</option>
+                                <option value="Public Sector & Govt">Public Sector & Govt</option>
+                                <option value="Agriculture & Agribusiness">Agriculture & Agribusiness</option>
+                                <option value="Education & Academic">Education & Academic</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-grid">
+                            <button class="btn btn-navy" onclick="resetFilters()" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted mb-0 small">Showing <span id="jobCount" class="fw-bold text-dark">0</span> opportunities</p>
+            </div>
+            <div class="row g-3" id="jobsGrid"></div>
+        </div>
+
+        <div id="dashboardView" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold text-navy mb-0">Admin Management Portal</h3>
+                    <p class="text-muted small">Manage job listings, review job records, and update vacancies.</p>
+                </div>
+                <button class="btn btn-navy" data-bs-toggle="modal" data-bs-target="#addJobModal" onclick="prepareAddJob()">
+                    <i class="bi bi-plus-lg me-1"></i> Post New Vacancy
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-0">
+                    <h6 class="fw-bold mb-0 text-navy"><i class="bi bi-table me-2"></i> Active Job Vacancies (<span id="adminTotalJobs">0</span>)</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Category</th>
+                                <th>Salary Range</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-4 bg-navy text-white">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-warning mb-3"><i class="bi bi-briefcase-fill me-2"></i>KaziHub Kenya</h5>
+                    <p class="small text-light">Connecting top Kenyan talent with leading employers, public sector institutions, and international NGOs across all 47 counties.</p>
+                    <div class="d-flex gap-3 fs-5 text-light">
+                        <a href="#" class="text-light text-decoration-none"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light text-decoration-none"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-light text-decoration-none"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="text-light text-decoration-none"><i class="bi bi-envelope-fill"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-light mb-3 fs-7">Categories</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByCategory('Technology & ICT')">Technology & ICT</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByCategory('Banking & Finance')">Banking & Finance</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByCategory('Healthcare & NGO')">Healthcare & NGO</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByCategory('Engineering & Construction')">Engineering</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-light mb-3 fs-7">Hot Locations</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByLocation('Nairobi')">Nairobi Jobs</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByLocation('Mombasa')">Mombasa Jobs</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByLocation('Kisumu')">Kisumu Jobs</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none" onclick="filterByLocation('Nakuru')">Nakuru Jobs</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="fw-bold text-uppercase text-light mb-3 fs-7">Contact & Location</h6>
+                    <p class="small mb-1"><i class="bi bi-geo-alt-fill me-2 text-warning"></i>Nairobi Innovation Hub, Kilimani, Nairobi, Kenya</p>
+                    <p class="small mb-1"><i class="bi bi-telephone-fill me-2 text-warning"></i>+254 706287933</p>
+                    <p class="small mb-0"><i class="bi bi-envelope-check-fill me-2 text-warning"></i>support@kazihub.co.ke</p>
+                </div>
+            </div>
+
+            <hr class="my-4 border-secondary">
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center small text-light">
+                <p class="mb-2 mb-sm-0">&copy; 2026 KaziHub Kenya. All rights reserved.</p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-light text-decoration-none">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none">Terms of Service</a>
+                    <a href="#" class="text-light text-decoration-none">Help Center</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold text-navy" id="modalJobTitle">Job Title</h5>
+                        <p class="text-muted small mb-0" id="modalCompanyLocation">Company Name - Location</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-navy text-white" id="modalCategory">Category</span>
+                        <span class="badge bg-success text-white" id="modalType">Full-Time</span>
+                        <span class="badge bg-warning text-dark" id="modalSalary">Salary</span>
+                    </div>
+
+                    <ul class="nav nav-tabs border-bottom mb-3" id="jobModalTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold small" id="desc-tab" data-bs-toggle="tab" data-bs-target="#tabDesc" type="button" role="tab">Overview & Reqs</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold small" id="cv-tab" data-bs-toggle="tab" data-bs-target="#tabCv" type="button" role="tab">Sample CV</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold small" id="cover-tab" data-bs-toggle="tab" data-bs-target="#tabCover" type="button" role="tab">Sample Cover Letter</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold small text-primary" id="apply-tab" data-bs-toggle="tab" data-bs-target="#tabApply" type="button" role="tab"><i class="bi bi-send me-1"></i> Apply Now</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tabDesc" role="tabpanel">
+                            <h6 class="fw-bold text-navy">Job Description</h6>
+                            <p id="modalDescription" class="text-secondary small"></p>
+                            <h6 class="fw-bold text-navy mt-3">General Key Requirements</h6>
+                            <ul id="modalReqs" class="text-secondary small ps-3"></ul>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabCv" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-muted">Tailored Curriculum Vitae Template</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('sampleCvText')"><i class="bi bi-clipboard me-1"></i> Copy CV</button>
+                            </div>
+                            <pre id="sampleCvText" class="p-3 bg-light rounded-3 text-dark small border mb-0" style="white-space: pre-wrap;"></pre>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabCover" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small text-muted">Tailored Application Letter Template</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('sampleCoverText')"><i class="bi bi-clipboard me-1"></i> Copy Letter</button>
+                            </div>
+                            <pre id="sampleCoverText" class="p-3 bg-light rounded-3 text-dark small border mb-0" style="white-space: pre-wrap;"></pre>
+                        </div>
+
+                        <div class="tab-pane fade" id="tabApply" role="tabpanel">
+                            <form id="applyJobForm">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Full Name *</label>
+                                        <input type="text" class="form-control form-control-sm" id="applicantName" placeholder="e.g. Emmanuel Otieno" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Email Address *</label>
+                                        <input type="email" class="form-control form-control-sm" id="applicantEmail" placeholder="e.g. emmanuel@example.com" required>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Phone Number *</label>
+                                    <input type="tel" class="form-control form-control-sm" id="applicantPhone" placeholder="+254 700 000 000" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Attach CV / Resume (.pdf, .doc)</label>
+                                    <input type="file" class="form-control form-control-sm" id="applicantCvFile" accept=".pdf,.doc,.docx">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Cover Letter / Additional Notes</label>
+                                    <textarea class="form-control form-control-sm" id="applicantCoverText" rows="3" placeholder="Paste or summarize your cover letter here..."></textarea>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-navy"><i class="bi bi-send-fill me-1"></i> Submit Application</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-navy"><i class="bi bi-shield-lock me-2"></i> Admin Authentication</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loginAlert" class="alert alert-danger small d-none" role="alert"></div>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" id="usernameInput" class="form-control" placeholder="admin" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" id="passwordInput" class="form-control" placeholder="admin123" required>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div id="passStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Account Role</label>
+                            <select id="roleSelect" class="form-select">
+                                <option value="admin">System Administrator</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-navy">Authenticate Access</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addJobModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-navy" id="addJobModalTitle">Post New Vacancy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addJobForm">
+                        <input type="hidden" id="jobEditId" value="">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Job Title *</label>
+                            <input type="text" id="jobTitleInput" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Company *</label>
+                            <input type="text" id="jobCompanyInput" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Location *</label>
+                                <input type="text" id="jobLocationInput" class="form-control form-control-sm" placeholder="e.g. Nairobi" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Category *</label>
+                                <select id="jobCategoryInput" class="form-select form-select-sm" required>
+                                    <option value="Technology & ICT">Technology & ICT</option>
+                                    <option value="Banking & Finance">Banking & Finance</option>
+                                    <option value="Healthcare & NGO">Healthcare & NGO</option>
+                                    <option value="Engineering & Construction">Engineering & Construction</option>
+                                    <option value="Public Sector & Govt">Public Sector & Govt</option>
+                                    <option value="Agriculture & Agribusiness">Agriculture & Agribusiness</option>
+                                    <option value="Education & Academic">Education & Academic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Salary Offer (KES) *</label>
+                            <input type="text" id="jobSalaryInput" class="form-control form-control-sm" placeholder="KES 150,000 - 200,000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Job Description *</label>
+                            <textarea id="jobDescInput" class="form-control form-control-sm" rows="3" required></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-navy">Save Vacancy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body small" id="toastMessage">Action completed successfully.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
