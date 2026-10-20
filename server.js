@@ -35,7 +35,7 @@ function verifyAdmin(req, res, next) {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    if (username === 'admin' && password === 'admin123') {
+    if (username === 'ochola' && password === 'ochola123') {
         const token = jwt.sign({ username, role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
         return res.json({ token, role: 'admin', message: 'Authentication successful.' });
     }
