@@ -10,11 +10,17 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--navy-color);">
+    <!-- Navbar with Sidebar Toggle Button -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--navy-color, #1a365d);">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#" id="brandLogo">
-                <i class="bi bi-briefcase-fill text-warning me-2 fs-3"></i> KaziHub <span class="badge bg-warning text-dark ms-2 fs-8">KE</span>
-            </a>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-light btn-sm me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#userSidebar" aria-controls="userSidebar">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#" id="brandLogo">
+                    <i class="bi bi-briefcase-fill text-warning me-2 fs-3"></i> KaziHub <span class="badge bg-warning text-dark ms-2 fs-8">KE</span>
+                </a>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -40,10 +46,144 @@
         </div>
     </nav>
 
-    <main class="container my-4 flex-grow-1">
+    <!-- ================= USER SIDEBAR (OFFCANVAS) ================= -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="userSidebar" aria-labelledby="userSidebarLabel">
+        <div class="offcanvas-header text-white" style="background-color: var(--navy-color, #1a365d);">
+            <h5 class="offcanvas-title fw-bold" id="userSidebarLabel">
+                <i class="bi bi-person-badge text-warning me-2"></i> KaziHub Portal
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column justify-content-between">
+            <div>
+                <!-- Account Tabs Navigation -->
+                <ul class="nav nav-pills nav-fill mb-3" id="accountTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active btn-sm small fw-bold" id="tab-reg" data-bs-toggle="tab" data-bs-target="#panelReg" type="button">Register</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link btn-sm small fw-bold" id="tab-edit" data-bs-toggle="tab" data-bs-target="#panelEdit" type="button">Update</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link btn-sm small fw-bold text-danger" id="tab-forgot" data-bs-toggle="tab" data-bs-target="#panelForgot" type="button">Forgot Pass</button>
+                    </li>
+                </ul>
 
+                <div class="tab-content">
+                    <!-- 1. REGISTER ACCOUNT -->
+                    <div class="tab-pane fade show active" id="panelReg" role="tabpanel">
+                        <div class="card bg-light border-0 p-3 rounded-3 shadow-sm">
+                            <h6 class="fw-bold text-navy mb-2"><i class="bi bi-person-plus-fill me-1"></i> Create Account</h6>
+                            <form id="sidebarRegisterForm">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Full Name</label>
+                                    <input type="text" class="form-control form-control-sm" id="regFullName" placeholder="Emmanuel Otieno" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Email Address</label>
+                                    <input type="email" class="form-control form-control-sm" id="regEmail" placeholder="name@example.com" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Password</label>
+                                    <input type="password" class="form-control form-control-sm" id="regPassword" placeholder="••••••••" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Profession</label>
+                                    <select class="form-select form-select-sm" id="regProfession">
+                                        <option value="Technology & ICT">Technology & ICT</option>
+                                        <option value="Banking & Finance">Banking & Finance</option>
+                                        <option value="Healthcare & NGO">Healthcare & NGO</option>
+                                        <option value="Engineering">Engineering & Construction</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-warning btn-sm fw-bold text-dark">Register</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 2. UPDATE PROFILE -->
+                    <div class="tab-pane fade" id="panelEdit" role="tabpanel">
+                        <div class="card bg-light border-0 p-3 rounded-3 shadow-sm">
+                            <h6 class="fw-bold text-navy mb-2"><i class="bi bi-pencil-square me-1"></i> Update Profile</h6>
+                            <form id="sidebarUpdateForm">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Account Email *</label>
+                                    <input type="email" class="form-control form-control-sm" id="updateEmail" placeholder="your@email.com" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Updated Full Name</label>
+                                    <input type="text" class="form-control form-control-sm" id="updateFullName" placeholder="Updated Name">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Updated Profession</label>
+                                    <select class="form-select form-select-sm" id="updateProfession">
+                                        <option value="Technology & ICT">Technology & ICT</option>
+                                        <option value="Banking & Finance">Banking & Finance</option>
+                                        <option value="Healthcare & NGO">Healthcare & NGO</option>
+                                        <option value="Engineering">Engineering & Construction</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-navy btn-sm fw-bold">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 3. FORGOT PASSWORD -->
+                    <div class="tab-pane fade" id="panelForgot" role="tabpanel">
+                        <div class="card bg-light border-0 p-3 rounded-3 shadow-sm border-danger">
+                            <h6 class="fw-bold text-danger mb-2"><i class="bi bi-shield-exclamation me-1"></i> Admin Password Reset</h6>
+                            <p class="small text-muted mb-2">Request an alert to <strong>ocholaemmanuelotieno@gmail.com</strong> for manual account password updates.</p>
+                            <form id="sidebarForgotForm">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Registered Email</label>
+                                    <input type="email" class="form-control form-control-sm" id="forgotEmail" placeholder="name@example.com" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold">Reason / Notes</label>
+                                    <textarea class="form-control form-control-sm" id="forgotReason" rows="2" placeholder="Forgot password..."></textarea>
+                                </div>
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-danger btn-sm fw-bold">Request Admin Reset</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="text-muted">
+
+                <!-- Shortcuts -->
+                <div>
+                    <h6 class="text-uppercase text-muted fw-bold fs-7 mb-2">Quick Shortcuts</h6>
+                    <ul class="list-unstyled sidebar-nav-links small">
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-bookmark-star text-warning me-2 fs-5"></i> Saved Bookmarks
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-dark d-flex align-items-center p-2 rounded bg-light" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-file-earmark-text text-primary me-2 fs-5"></i> CV Templates
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 text-center text-muted small">
+                <p class="mb-0">KaziHub Candidate Portal &copy; 2026</p>
+            </div>
+        </div>
+    </div>
+    <!-- ================= END SIDEBAR ================= -->
+
+    <main class="container my-4 flex-grow-1">
         <div id="jobsView">
-            <div class="p-4 p-md-5 mb-4 rounded-3 text-white shadow-sm" style="background: linear-gradient(135deg, var(--navy-color) 0%, #1a365d 100%);">
+            <div class="p-4 p-md-5 mb-4 rounded-3 text-white shadow-sm" style="background: linear-gradient(135deg, #1a365d 0%, #0d1b2a 100%);">
                 <div class="col-lg-8">
                     <h1 class="display-6 fw-bold">Find Verified Career Opportunities in Kenya</h1>
                     <p class="lead text-light mb-0 fs-6">Explore thousands of open job vacancies across tech, healthcare, engineering, and finance with tailored CV and Cover Letter templates.</p>
@@ -86,7 +226,7 @@
                             </select>
                         </div>
                         <div class="col-md-1 d-grid">
-                            <button class="btn btn-navy" onclick="resetFilters()" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                            <button class="btn btn-navy" onclick="resetFilters()" title="Reset Filters" style="background:#1a365d; color:#fff;"><i class="bi bi-arrow-counterclockwise"></i></button>
                         </div>
                     </div>
                 </div>
@@ -104,7 +244,7 @@
                     <h3 class="fw-bold text-navy mb-0">Admin Management Portal</h3>
                     <p class="text-muted small">Manage job listings, review job records, and update vacancies.</p>
                 </div>
-                <button class="btn btn-navy" data-bs-toggle="modal" data-bs-target="#addJobModal" onclick="prepareAddJob()">
+                <button class="btn btn-navy" data-bs-toggle="modal" data-bs-target="#addJobModal" onclick="prepareAddJob()" style="background:#1a365d; color:#fff;">
                     <i class="bi bi-plus-lg me-1"></i> Post New Vacancy
                 </button>
             </div>
@@ -132,7 +272,8 @@
         </div>
     </main>
 
-    <footer class="footer mt-auto py-4 bg-navy text-white">
+    <!-- ================= FULL FOOTER ================= -->
+    <footer class="footer mt-auto py-4 text-white" style="background-color: #1a365d;">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
@@ -187,97 +328,7 @@
         </div>
     </footer>
 
-    <div class="modal fade" id="jobDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header border-0 bg-light">
-                    <div>
-                        <h5 class="modal-title fw-bold text-navy" id="modalJobTitle">Job Title</h5>
-                        <p class="text-muted small mb-0" id="modalCompanyLocation">Company Name - Location</p>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex gap-2 mb-3">
-                        <span class="badge bg-navy text-white" id="modalCategory">Category</span>
-                        <span class="badge bg-success text-white" id="modalType">Full-Time</span>
-                        <span class="badge bg-warning text-dark" id="modalSalary">Salary</span>
-                    </div>
-
-                    <ul class="nav nav-tabs border-bottom mb-3" id="jobModalTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold small" id="desc-tab" data-bs-toggle="tab" data-bs-target="#tabDesc" type="button" role="tab">Overview & Reqs</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold small" id="cv-tab" data-bs-toggle="tab" data-bs-target="#tabCv" type="button" role="tab">Sample CV</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold small" id="cover-tab" data-bs-toggle="tab" data-bs-target="#tabCover" type="button" role="tab">Sample Cover Letter</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold small text-primary" id="apply-tab" data-bs-toggle="tab" data-bs-target="#tabApply" type="button" role="tab"><i class="bi bi-send me-1"></i> Apply Now</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="tabDesc" role="tabpanel">
-                            <h6 class="fw-bold text-navy">Job Description</h6>
-                            <p id="modalDescription" class="text-secondary small"></p>
-                            <h6 class="fw-bold text-navy mt-3">General Key Requirements</h6>
-                            <ul id="modalReqs" class="text-secondary small ps-3"></ul>
-                        </div>
-
-                        <div class="tab-pane fade" id="tabCv" role="tabpanel">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small text-muted">Tailored Curriculum Vitae Template</span>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('sampleCvText')"><i class="bi bi-clipboard me-1"></i> Copy CV</button>
-                            </div>
-                            <pre id="sampleCvText" class="p-3 bg-light rounded-3 text-dark small border mb-0" style="white-space: pre-wrap;"></pre>
-                        </div>
-
-                        <div class="tab-pane fade" id="tabCover" role="tabpanel">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small text-muted">Tailored Application Letter Template</span>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('sampleCoverText')"><i class="bi bi-clipboard me-1"></i> Copy Letter</button>
-                            </div>
-                            <pre id="sampleCoverText" class="p-3 bg-light rounded-3 text-dark small border mb-0" style="white-space: pre-wrap;"></pre>
-                        </div>
-
-                        <div class="tab-pane fade" id="tabApply" role="tabpanel">
-                            <form id="applyJobForm">
-                                <div class="row g-2 mb-2">
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-bold">Full Name *</label>
-                                        <input type="text" class="form-control form-control-sm" id="applicantName" placeholder="e.g. Emmanuel Otieno" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-bold">Email Address *</label>
-                                        <input type="email" class="form-control form-control-sm" id="applicantEmail" placeholder="e.g. emmanuel@example.com" required>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small fw-bold">Phone Number *</label>
-                                    <input type="tel" class="form-control form-control-sm" id="applicantPhone" placeholder="+254 700 000 000" required>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small fw-bold">Attach CV / Resume (.pdf, .doc)</label>
-                                    <input type="file" class="form-control form-control-sm" id="applicantCvFile" accept=".pdf,.doc,.docx">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">Cover Letter / Additional Notes</label>
-                                    <textarea class="form-control form-control-sm" id="applicantCoverText" rows="3" placeholder="Paste or summarize your cover letter here..."></textarea>
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-navy"><i class="bi bi-send-fill me-1"></i> Submit Application</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modals -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -286,27 +337,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="loginAlert" class="alert alert-danger small d-none" role="alert"></div>
                     <form id="loginForm">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Username</label>
-                            <input type="text" id="usernameInput" class="form-control" placeholder="admin" required>
+                            <input type="text" id="usernameInput" class="form-control" placeholder="ochola" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Password</label>
-                            <input type="password" id="passwordInput" class="form-control" placeholder="admin123" required>
-                            <div class="progress mt-2" style="height: 4px;">
-                                <div id="passStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Account Role</label>
-                            <select id="roleSelect" class="form-select">
-                                <option value="admin">System Administrator</option>
-                            </select>
+                            <input type="password" id="passwordInput" class="form-control" placeholder="ochola123" required>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-navy">Authenticate Access</button>
+                            <button type="submit" class="btn text-white" style="background:#1a365d;">Authenticate Access</button>
                         </div>
                     </form>
                 </div>
@@ -324,60 +365,29 @@
                 <div class="modal-body">
                     <form id="addJobForm">
                         <input type="hidden" id="jobEditId" value="">
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Job Title *</label>
-                            <input type="text" id="jobTitleInput" class="form-control form-control-sm" required>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Company *</label>
-                            <input type="text" id="jobCompanyInput" class="form-control form-control-sm" required>
-                        </div>
+                        <div class="mb-2"><label class="form-label small fw-bold">Job Title *</label><input type="text" id="jobTitleInput" class="form-control form-control-sm" required></div>
+                        <div class="mb-2"><label class="form-label small fw-bold">Company *</label><input type="text" id="jobCompanyInput" class="form-control form-control-sm" required></div>
                         <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Location *</label>
-                                <input type="text" id="jobLocationInput" class="form-control form-control-sm" placeholder="e.g. Nairobi" required>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small fw-bold">Category *</label>
-                                <select id="jobCategoryInput" class="form-select form-select-sm" required>
+                            <div class="col-6"><label class="form-label small fw-bold">Location *</label><input type="text" id="jobLocationInput" class="form-control form-control-sm" required></div>
+                            <div class="col-6"><label class="form-label small fw-bold">Category *</label>
+                                <select id="jobCategoryInput" class="form-select form-select-sm">
                                     <option value="Technology & ICT">Technology & ICT</option>
                                     <option value="Banking & Finance">Banking & Finance</option>
                                     <option value="Healthcare & NGO">Healthcare & NGO</option>
                                     <option value="Engineering & Construction">Engineering & Construction</option>
-                                    <option value="Public Sector & Govt">Public Sector & Govt</option>
-                                    <option value="Agriculture & Agribusiness">Agriculture & Agribusiness</option>
-                                    <option value="Education & Academic">Education & Academic</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Salary Offer (KES) *</label>
-                            <input type="text" id="jobSalaryInput" class="form-control form-control-sm" placeholder="KES 30,000 - 200,000" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Job Description *</label>
-                            <textarea id="jobDescInput" class="form-control form-control-sm" rows="3" required></textarea>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-navy">Save Vacancy</button>
-                        </div>
+                        <div class="mb-2"><label class="form-label small fw-bold">Salary Offer (KES) *</label><input type="text" id="jobSalaryInput" class="form-control form-control-sm" required></div>
+                        <div class="mb-3"><label class="form-label small fw-bold">Job Description *</label><textarea id="jobDescInput" class="form-control form-control-sm" rows="3" required></textarea></div>
+                        <div class="d-grid"><button type="submit" class="btn text-white" style="background:#1a365d;">Save Vacancy</button></div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body small" id="toastMessage">Action completed successfully.</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html>
