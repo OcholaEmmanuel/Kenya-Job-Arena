@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchJobs();
     checkAuthUI();
 
-    // Event listeners
+    // Search and filter listeners
     document.getElementById('searchInput')?.addEventListener('input', filterAndRenderJobs);
     document.getElementById('locationSelect')?.addEventListener('change', filterAndRenderJobs);
     document.getElementById('categorySelect')?.addEventListener('change', filterAndRenderJobs);
@@ -120,6 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Reset request sent to admin (ocholaemmanuelotieno@gmail.com).");
         }
     });
+
+    // Candidate Application Form Submit
+    document.getElementById('applyJobForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert("Application submitted successfully! The employer will review your profile.");
+        bootstrap.Modal.getInstance(document.getElementById('jobDetailModal')).hide();
+    });
 });
 
 async function fetchJobs() {
@@ -155,14 +162,13 @@ function filterAndRenderJobs() {
 
     grid.innerHTML = filtered.map(job => `
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0 p-3 rounded-3">
+            <div class="card h-100 shadow-sm border-0 p-3 rounded-3 job-card" onclick="openJobDetail(${job.id})">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="badge text-white" style="background:#1a365d;">${job.category}</span>
                     <span class="badge bg-success text-white">${job.type || 'Full-Time'}</span>
                 </div>
                 <h5 class="fw-bold mb-1" style="color:#1a365d;">${job.title}</h5>
-                <p class="text-muted small mb-2"><i class="bi bi-building me-1"></i>${job.company}</p>
-                <p class="small text-secondary mb-3">${job.desc}</p>
+                <p class="text-muted small mb-3"><i class="bi bi-building me-1"></i>${job.company}</p>
                 <div class="mt-auto d-flex justify-content-between align-items-center border-top pt-2">
                     <span class="small text-muted"><i class="bi bi-geo-alt me-1 text-danger"></i>${job.location}</span>
                     <span class="fw-bold text-dark small">${job.salary}</span>
@@ -170,6 +176,61 @@ function filterAndRenderJobs() {
             </div>
         </div>
     `).join('');
+}
+
+function openJobDetail(id) {
+    const job = allJobs.find(j => j.id === id);
+    if (!job) return;
+
+    document.getElementById('modalJobTitle').innerText = job.title;
+    document.getElementById('modalCompanyLocation').innerText = `${job.company} - ${job.location}`;
+    document.getElementById('modalCategory').innerText = job.category;
+    document.getElementById('modalType').innerText = job.type || 'Full-Time';
+    document.getElementById('modalSalary').innerText = job.salary;
+    document.getElementById('modalDescription').innerText = job.desc;
+
+    // Standardized Requirements
+    document.getElementById('modalReqs').innerHTML = `
+        <li>Relevant degree or diploma qualification in ${job.category}.</li>
+        <li>Strong professional competence and problem-solving abilities.</li>
+        <li>Demonstrated experience in similar industry positions.</li>
+    `;
+
+    // Tailored Sample CV Template
+    document.getElementById('sampleCvText').innerText = 
+`EMMANUEL OTIENO
+Nairobi, Kenya | ocholaemmanuelotieno@gmail.com | +254 706 287 933
+
+PROFESSIONAL SUMMARY
+Results-driven ${job.title} with proven expertise at ${job.company}. Specializing in ${job.category}.
+
+WORK EXPERIENCE
+${job.title} | ${job.company}
+- ${job.desc}
+- Executed operational workflows in ${job.location}.
+
+EDUCATION
+Bachelor's Degree / Higher Diploma - Kenya`;
+
+    // Tailored Cover Letter Template
+    document.getElementById('sampleCoverText').innerText = 
+`Dear Hiring Manager at ${job.company},
+
+I am writing to express my strong interest in the ${job.title} position based in ${job.location}. 
+
+With a solid background in ${job.category}, I am confident in my ability to contribute effectively to your team's objectives.
+
+Sincerely,
+Emmanuel Otieno
++254 706 287 933`;
+
+    new bootstrap.Modal(document.getElementById('jobDetailModal')).show();
+}
+
+function copyToClipboard(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text);
+    alert('Template copied to clipboard!');
 }
 
 function renderAdminTable() {
