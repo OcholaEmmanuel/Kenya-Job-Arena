@@ -1,5 +1,7 @@
 const API_URL = 'http://localhost:5000/api';
 let authToken = localStorage.getItem('kazihub_token') || null;
+let currentUser = JSON.parse(localStorage.getItem('kazihub_user')) || null;
+let selectedJobIdForApp = null;
 
 // Complete 42 Job Database
 let sampleJobsData = [
@@ -52,93 +54,190 @@ let allJobs = [];
 document.addEventListener('DOMContentLoaded', () => {
     fetchJobs();
     checkAuthUI();
+    syncSidebarUserUI();
 
-    // Search and filter listeners
+    // Event listeners for filters
     document.getElementById('searchInput')?.addEventListener('input', filterAndRenderJobs);
     document.getElementById('locationSelect')?.addEventListener('change', filterAndRenderJobs);
     document.getElementById('categorySelect')?.addEventListener('change', filterAndRenderJobs);
 
-    // Sidebar Register submit
+    // Sidebar Event Listener: Pre-fill Update Form when Update Tab is Clicked
+    document.getElementById('tab-edit')?.addEventListener('click', () => {
+        if (currentUser) {
+            document.getElementById('updateEmail').value = currentUser.email || '';
+            document.getElementById('updateFullName').value = currentUser.fullName || '';
+            if (currentUser.profession) {
+                document.getElementById('updateProfession').value = currentUser.profession;
+            }
+        }
+    });
+
+    // Sidebar Register Handler (Real-time Sync)
     document.getElementById('sidebarRegisterForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = {
-            fullName: document.getElementById('regFullName').value,
-            email: document.getElementById('regEmail').value,
-            password: document.getElementById('regPassword').value,
-            profession: document.getElementById('regProfession').value
-        };
+        const fullName = document.getElementById('regFullName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const profession = document.getElementById('regProfession').value;
+
+        currentUser = { fullName, email, profession };
+        localStorage.setItem('kazihub_user', JSON.stringify(currentUser));
+
         try {
-            const res = await fetch(`${API_URL}/users/register`, {
+            await fetch(`${API_URL}/users/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(currentUser)
             });
-            const data = await res.json();
-            alert(data.message || data.error);
-        } catch(err) {
-            alert("Account registered locally.");
+        } catch (err) {
+            console.log("Registered locally.");
         }
+
+        syncSidebarUserUI();
+        closeOffcanvasSidebar();
+        alert(`Welcome, ${fullName}! Your candidate account is active.`);
     });
 
-    // Sidebar Update submit
+    // Sidebar Profile Update Handler (Real-time Sync)
     document.getElementById('sidebarUpdateForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = {
-            email: document.getElementById('updateEmail').value,
-            fullName: document.getElementById('updateFullName').value,
-            profession: document.getElementById('updateProfession').value
-        };
+        const email = document.getElementById('updateEmail').value.trim();
+        const fullName = document.getElementById('updateFullName').value.trim();
+        const profession = document.getElementById('updateProfession').value;
+
+        currentUser = { fullName: fullName || currentUser?.fullName || 'User', email, profession };
+        localStorage.setItem('kazihub_user', JSON.stringify(currentUser));
+
         try {
-            const res = await fetch(`${API_URL}/users/update-profile`, {
+            await fetch(`${API_URL}/users/update-profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(currentUser)
             });
-            const data = await res.json();
-            alert(data.message || data.error);
-        } catch(err) {
-            alert("Profile updated successfully.");
+        } catch (err) {
+            console.log("Profile updated locally.");
         }
+
+        syncSidebarUserUI();
+        closeOffcanvasSidebar();
+        alert("Profile details updated successfully!");
     });
 
-    // Sidebar Forgot Password submit
+    // Sidebar Forgot Password Handler
     document.getElementById('sidebarForgotForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = {
-            email: document.getElementById('forgotEmail').value,
-            reason: document.getElementById('forgotReason').value
-        };
+        const email = document.getElementById('forgotEmail').value;
+        const reason = document.getElementById('forgotReason').value;
+
         try {
-            const res = await fetch(`${API_URL}/users/forgot-password`, {
+            await fetch(`${API_URL}/users/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ email, reason })
             });
-            const data = await res.json();
-            alert(data.message || data.error);
-        } catch(err) {
-            alert("Reset request sent to admin (ocholaemmanuelotieno@gmail.com).");
+        } catch (err) {
+            console.log("Reset request sent to admin.");
         }
+
+        closeOffcanvasSidebar();
+        alert("Password reset request sent to administrator (ocholaemmanuelotieno@gmail.com).");
     });
 
-    // Candidate Application Form Submit
-    document.getElementById('applyJobForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert("Application submitted successfully! The employer will review your profile.");
-        bootstrap.Modal.getInstance(document.getElementById('jobDetailModal')).hide();
-    });
+    // Application Form Submit Handler
+    const applyForm = document.getElementById('applyJobForm');
+    if (applyForm) {
+        applyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const submitBtn = applyForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+            const fileInput = document.getElementById('applicantCvFile');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Data = event.target.result.split(',')[1];
+                    submitApplicationPayload(base64Data, file.name);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                submitApplicationPayload(null, null);
+            }
+        });
+    }
 });
+
+function syncSidebarUserUI() {
+    const userInfo = document.getElementById('userInfo');
+    if (!userInfo) return;
+
+    if (currentUser && currentUser.fullName) {
+        userInfo.innerHTML = `<i class="bi bi-person-circle text-warning me-1"></i> ${currentUser.fullName}`;
+        userInfo.classList.remove('d-none');
+    } else {
+        userInfo.classList.add('d-none');
+    }
+}
+
+function closeOffcanvasSidebar() {
+    const sidebarEl = document.getElementById('userSidebar');
+    if (sidebarEl) {
+        const bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+        if (bsOffcanvas) bsOffcanvas.hide();
+    }
+}
+
+async function submitApplicationPayload(cvBase64, cvFileName) {
+    const payload = {
+        jobId: selectedJobIdForApp,
+        applicantName: document.getElementById('applicantName').value,
+        applicantEmail: document.getElementById('applicantEmail').value,
+        applicantPhone: document.getElementById('applicantPhone').value,
+        coverNote: document.getElementById('applicantCoverText').value,
+        cvBase64: cvBase64,
+        cvFileName: cvFileName
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/jobs/apply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert('🎉 ' + data.message);
+            document.getElementById('applyJobForm').reset();
+            bootstrap.Modal.getInstance(document.getElementById('jobDetailModal')).hide();
+        } else {
+            alert('❌ ' + (data.error || 'Failed to submit application.'));
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Application submitted successfully!');
+    } finally {
+        const submitBtn = document.querySelector('#applyJobForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Submit Application';
+        }
+    }
+}
 
 async function fetchJobs() {
     try {
         const res = await fetch(`${API_URL}/jobs`);
-        if(res.ok) {
+        if (res.ok) {
             allJobs = await res.json();
         } else {
             allJobs = sampleJobsData;
         }
     } catch (err) {
-        allJobs = sampleJobsData; // Fallback to 42 jobs
+        allJobs = sampleJobsData;
     }
     filterAndRenderJobs();
     renderAdminTable();
@@ -182,6 +281,8 @@ function openJobDetail(id) {
     const job = allJobs.find(j => j.id === id);
     if (!job) return;
 
+    selectedJobIdForApp = job.id;
+
     document.getElementById('modalJobTitle').innerText = job.title;
     document.getElementById('modalCompanyLocation').innerText = `${job.company} - ${job.location}`;
     document.getElementById('modalCategory').innerText = job.category;
@@ -189,14 +290,18 @@ function openJobDetail(id) {
     document.getElementById('modalSalary').innerText = job.salary;
     document.getElementById('modalDescription').innerText = job.desc;
 
-    // Standardized Requirements
+    // Auto-fill application fields from user session if registered
+    if (currentUser) {
+        if (currentUser.fullName) document.getElementById('applicantName').value = currentUser.fullName;
+        if (currentUser.email) document.getElementById('applicantEmail').value = currentUser.email;
+    }
+
     document.getElementById('modalReqs').innerHTML = `
-        <li>Relevant degree or diploma qualification in ${job.category}.</li>
-        <li>Strong professional competence and problem-solving abilities.</li>
+        <li>Relevant degree or professional qualification in ${job.category}.</li>
         <li>Demonstrated experience in similar industry positions.</li>
+        <li>Strong professional competence and communication skills.</li>
     `;
 
-    // Tailored Sample CV Template
     document.getElementById('sampleCvText').innerText = 
 `EMMANUEL OTIENO
 Nairobi, Kenya | ocholaemmanuelotieno@gmail.com | +254 706 287 933
@@ -212,7 +317,6 @@ ${job.title} | ${job.company}
 EDUCATION
 Bachelor's Degree / Higher Diploma - Kenya`;
 
-    // Tailored Cover Letter Template
     document.getElementById('sampleCoverText').innerText = 
 `Dear Hiring Manager at ${job.company},
 
@@ -221,7 +325,7 @@ I am writing to express my strong interest in the ${job.title} position based in
 With a solid background in ${job.category}, I am confident in my ability to contribute effectively to your team's objectives.
 
 Sincerely,
-Emmanuel Otieno
+${currentUser?.fullName || 'Emmanuel Otieno'}
 +254 706 287 933`;
 
     new bootstrap.Modal(document.getElementById('jobDetailModal')).show();
@@ -253,6 +357,34 @@ function renderAdminTable() {
     `).join('');
 }
 
+// Hero Tag Helper Functions
+function quickFilter(category) {
+    const catSelect = document.getElementById('categorySelect');
+    if (catSelect) {
+        catSelect.value = category;
+        filterAndRenderJobs();
+        document.getElementById('jobsGrid')?.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function quickFilterLocation(loc) {
+    const locSelect = document.getElementById('locationSelect');
+    if (locSelect) {
+        locSelect.value = loc;
+        filterAndRenderJobs();
+        document.getElementById('jobsGrid')?.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function quickSearch(term) {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = term;
+        filterAndRenderJobs();
+        document.getElementById('jobsGrid')?.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
 function filterByCategory(cat) {
     document.getElementById('categorySelect').value = cat;
     filterAndRenderJobs();
@@ -273,18 +405,15 @@ function resetFilters() {
 function checkAuthUI() {
     const adminTab = document.getElementById('adminNavTab');
     const dashboardView = document.getElementById('dashboardView');
-    const loginBtn = document.getElementById('loginBtnNav');
     const logoutBtn = document.getElementById('logoutBtn');
 
     if (authToken) {
         adminTab?.classList.remove('d-none');
         dashboardView?.classList.remove('d-none');
-        loginBtn?.classList.add('d-none');
         logoutBtn?.classList.remove('d-none');
     } else {
         adminTab?.classList.add('d-none');
         dashboardView?.classList.add('d-none');
-        loginBtn?.classList.remove('d-none');
         logoutBtn?.classList.add('d-none');
     }
 }

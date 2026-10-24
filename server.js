@@ -1,173 +1,103 @@
-const express = require('express');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_here';
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kazihub';
-
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Database Connected Successfully'))
-    .catch(err => console.error('MongoDB Connection Error:', err));
-
-// Define Admin Schema & Model
-const adminSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    email: { type: String, default: 'ocholaemmanuelotieno@gmail.com' },
-    role: { type: String, default: 'admin' },
-    createdAt: { type: Date, default: Date.now }
-});
-const Admin = mongoose.model('Admin', adminSchema);
-
-// Define Job Schema & Model
-const jobSchema = new mongoose.Schema({
-    id: { type: Number, required: true, unique: true },
-    title: String,
-    company: String,
-    location: String,
-    category: String,
-    salary: String,
-    type: String,
-    desc: String
-}, { timestamps: true });
-const Job = mongoose.model('Job', jobSchema);
-
-// Configure Nodemailer
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'ocholaemmanuelotieno@gmail.com',
-        pass: process.env.GMAIL_APP_PASSWORD || 'your_app_password_here'
-    }
-});
-
-function sendEmailToAdmin(subject, htmlContent) {
-    transporter.sendMail({
-        from: '"KaziHub System" <ocholaemmanuelotieno@gmail.com>',
-        to: 'ocholaemmanuelotieno@gmail.com',
-        subject: subject,
-        html: htmlContent
-    }, (error, info) => {
-        if (error) console.error('Error sending admin notification:', error);
-    });
-}
-
-// Token Verification Middleware
-function verifyAdmin(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Access denied. Authorization token missing.' });
+// ================= APPLICATION & AUTOMATED CONFIRMATION EMAIL =================
+app.post('/api/jobs/apply', async (req, res) => {
+    const { jobId, applicantName, applicantEmail, applicantPhone, coverNote, cvBase64, cvFileName } = req.body;
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.role !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden. Admin privileges required.' });
-        }
-        req.user = decoded;
-        next();
-    } catch (err) {
-        return res.status(400).json({ error: 'Invalid or expired authentication token.' });
-    }
-}
-
-// ================= DATABASE-BACKED LOGIN ROUTE =================
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-
-    try {
-        // Query database for admin record
-        const admin = await Admin.findOne({ username });
-        if (!admin) {
-            return res.status(401).json({ error: 'Invalid administrator credentials.' });
+        // 1. Fetch job details
+        let jobTitle = "Job Vacancy";
+        let companyName = "KaziHub Partner";
+        if (jobId) {
+            const job = await Job.findOne({ id: parseInt(jobId) });
+            if (job) {
+                jobTitle = job.title;
+                companyName = job.company;
+            }
         }
 
-        // Verify password hash
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid administrator credentials.' });
+        // 2. Save application record to database
+        const newApp = new Application({
+            jobId,
+            applicantName,
+            applicantEmail,
+            applicantPhone,
+            coverNote
+        });
+        await newApp.save();
+
+        // 3. Prepare Candidate Email Options
+        const applicantMailOptions = {
+            from: '"KaziHub Kenya Recruitment" <ocholaemmanuelotieno@gmail.com>',
+            to: applicantEmail,
+            subject: `Application Received: ${jobTitle} at ${companyName}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                    <div style="background-color: #1a365d; color: #ffffff; padding: 20px; text-align: center;">
+                        <h2 style="margin: 0; color: #ffc107;">KaziHub Kenya</h2>
+                        <p style="margin: 5px 0 0 0; font-size: 14px;">Application Confirmation</p>
+                    </div>
+                    <div style="padding: 25px; background-color: #ffffff;">
+                        <p>Dear <strong>${applicantName}</strong>,</p>
+                        
+                        <p>Thank you for taking the time to apply for the position of <strong>${jobTitle}</strong> at <strong>${companyName}</strong> through KaziHub Kenya.</p>
+                        
+                        <p>We have successfully received your application materials and profile details. Our hiring team is currently reviewing all candidate submissions.</p>
+                        
+                        <div style="background-color: #f8f9fa; border-left: 4px solid #1a365d; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                            <p style="margin: 0; font-style: italic; color: #2c3e50;">
+                                "Every great career journey starts with a single bold step. We are excited about your potential contribution to this role and encourage you to remain hopeful while our review process is underway."
+                            </p>
+                        </div>
+
+                        <p>If your qualifications align with our requirements, our team will contact you via phone (<strong>${applicantPhone}</strong>) or email to schedule the next steps in the recruitment process.</p>
+                        
+                        <p style="margin-top: 25px;">Best of luck with your job search,</p>
+                        <p style="margin: 0;"><strong>The Recruitment Team</strong><br>KaziHub Kenya</p>
+                    </div>
+                    <div style="background-color: #f1f1f1; color: #777; text-align: center; padding: 12px; font-size: 12px;">
+                        &copy; 2026 KaziHub Kenya | Kilimani, Nairobi, Kenya
+                    </div>
+                </div>
+            `
+        };
+
+        // 4. Prepare Admin Alert Email Options
+        let attachments = [];
+        if (cvBase64 && cvFileName) {
+            attachments.push({
+                filename: cvFileName,
+                content: cvBase64,
+                encoding: 'base64'
+            });
         }
 
-        // Issue JWT token
-        const token = jwt.sign(
-            { id: admin._id, username: admin.username, role: admin.role },
-            JWT_SECRET,
-            { expiresIn: '8h' }
-        );
+        const adminMailOptions = {
+            from: '"KaziHub System" <ocholaemmanuelotieno@gmail.com>',
+            to: 'ocholaemmanuelotieno@gmail.com',
+            subject: `[New Applicant] ${applicantName} applied for ${jobTitle}`,
+            html: `
+                <h3>New Job Application Received</h3>
+                <ul>
+                    <li><strong>Candidate:</strong> ${applicantName}</li>
+                    <li><strong>Email:</strong> ${applicantEmail}</li>
+                    <li><strong>Phone:</strong> ${applicantPhone}</li>
+                    <li><strong>Job Applied For:</strong> ${jobTitle} (${companyName})</li>
+                    <li><strong>Notes:</strong> ${coverNote || 'N/A'}</li>
+                </ul>
+            `,
+            attachments: attachments
+        };
 
-        return res.json({ token, role: admin.role, message: 'Authentication successful.' });
-    } catch (err) {
-        console.error('Login database error:', err);
-        return res.status(500).json({ error: 'Internal server error during authentication.' });
+        // 5. Send both emails using AWAIT to catch authentication/sending errors
+        await transporter.sendMail(applicantMailOptions);
+        console.log("✅ Automated confirmation email sent to candidate:", applicantEmail);
+
+        await transporter.sendMail(adminMailOptions);
+        console.log("✅ Admin alert email sent successfully.");
+
+        res.status(200).json({ message: 'Application submitted successfully! Check your email inbox for confirmation.' });
+
+    } catch (error) {
+        console.error('❌ Error processing application or sending email:', error);
+        res.status(500).json({ error: 'Failed to send email. Please check your Gmail App Password configuration in server.js.' });
     }
-});
-
-// ================= JOB API ENDPOINTS =================
-app.get('/api/jobs', async (req, res) => {
-    try {
-        const jobs = await Job.find().sort({ id: 1 });
-        res.json(jobs);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to retrieve job vacancies.' });
-    }
-});
-
-app.post('/api/jobs', verifyAdmin, async (req, res) => {
-    try {
-        const newJob = new Job({ ...req.body, id: Date.now() });
-        await newJob.save();
-
-        sendEmailToAdmin(
-            `[KaziHub Admin Alert] Vacancy ADDED: ${newJob.title}`,
-            `<p>New vacancy posted: <strong>${newJob.title}</strong> at <strong>${newJob.company}</strong>.</p>`
-        );
-
-        res.status(201).json(newJob);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to post vacancy.' });
-    }
-});
-
-app.put('/api/jobs/:id', verifyAdmin, async (req, res) => {
-    try {
-        const updatedJob = await Job.findOneAndUpdate({ id: parseInt(req.params.id) }, req.body, { new: true });
-        if (!updatedJob) return res.status(404).json({ error: 'Vacancy not found.' });
-
-        sendEmailToAdmin(
-            `[KaziHub Admin Alert] Vacancy MODIFIED: ${updatedJob.title}`,
-            `<p>Vacancy updated for <strong>${updatedJob.title}</strong> at <strong>${updatedJob.company}</strong>.</p>`
-        );
-
-        res.json({ message: 'Vacancy updated successfully.', job: updatedJob });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to update vacancy.' });
-    }
-});
-
-app.delete('/api/jobs/:id', verifyAdmin, async (req, res) => {
-    try {
-        const deletedJob = await Job.findOneAndDelete({ id: parseInt(req.params.id) });
-        if (!deletedJob) return res.status(404).json({ error: 'Vacancy not found.' });
-
-        sendEmailToAdmin(
-            `[KaziHub Admin Alert] Vacancy DELETED`,
-            `<p style="color: red;">Vacancy removed: <strong>${deletedJob.title}</strong></p>`
-        );
-
-        res.json({ message: 'Vacancy deleted successfully.' });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to delete vacancy.' });
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`KaziHub Kenya API Server running on http://localhost:${PORT}`);
 });
