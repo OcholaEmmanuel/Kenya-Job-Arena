@@ -7,6 +7,6 @@ class IsAdminUserOrReadOnly(BasePermission):
     but allow authenticated end users to read, comment, and like.
     """
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS: # GET, HEAD, OPTIONS
+        if request.method in SAFE_METHODS: 
             return True
         return request.user and request.user.is_staff

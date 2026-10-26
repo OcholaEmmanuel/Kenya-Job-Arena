@@ -3,7 +3,6 @@ app.post('/api/jobs/apply', async (req, res) => {
     const { jobId, applicantName, applicantEmail, applicantPhone, coverNote, cvBase64, cvFileName } = req.body;
 
     try {
-        // 1. Fetch job details
         let jobTitle = "Job Vacancy";
         let companyName = "KaziHub Partner";
         if (jobId) {
@@ -14,7 +13,6 @@ app.post('/api/jobs/apply', async (req, res) => {
             }
         }
 
-        // 2. Save application record to database
         const newApp = new Application({
             jobId,
             applicantName,
@@ -24,7 +22,6 @@ app.post('/api/jobs/apply', async (req, res) => {
         });
         await newApp.save();
 
-        // 3. Prepare Candidate Email Options
         const applicantMailOptions = {
             from: '"KaziHub Kenya Recruitment" <ocholaemmanuelotieno@gmail.com>',
             to: applicantEmail,
@@ -60,7 +57,6 @@ app.post('/api/jobs/apply', async (req, res) => {
             `
         };
 
-        // 4. Prepare Admin Alert Email Options
         let attachments = [];
         if (cvBase64 && cvFileName) {
             attachments.push({
@@ -87,7 +83,6 @@ app.post('/api/jobs/apply', async (req, res) => {
             attachments: attachments
         };
 
-        // 5. Send both emails using AWAIT to catch authentication/sending errors
         await transporter.sendMail(applicantMailOptions);
         console.log("✅ Automated confirmation email sent to candidate:", applicantEmail);
 

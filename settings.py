@@ -4,4 +4,4 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ocholaemmanuelotieno@gmail.com'
-EMAIL_HOST_PASSWORD = 'admin123' # Generated from Google Account -> App Passwords
+EMAIL_HOST_PASSWORD = 'ocholadesage'

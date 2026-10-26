@@ -24,9 +24,7 @@ def notify_admin(action_type, job_details):
     )
 
 def add_or_update_vacancy(request):
-    # Your database code here...
     
-    # Send email trigger
     notify_admin('Added/Updated', request.POST)
     
     return JsonResponse({'status': 'success'})

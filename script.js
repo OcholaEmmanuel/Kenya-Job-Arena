@@ -3,7 +3,6 @@ let authToken = localStorage.getItem('kazihub_token') || null;
 let currentUser = JSON.parse(localStorage.getItem('kazihub_user')) || null;
 let selectedJobIdForApp = null;
 
-// Complete 42 Job Database
 let sampleJobsData = [
     { id: 1, title: "Senior Software Engineer (Fintech)", company: "Safaricom PLC", location: "Nairobi", category: "Technology & ICT", salary: "KES 40,000 - 380,000", type: "Full-Time", desc: "Build scalable microservices for M-PESA payment integration pipelines." },
     { id: 2, title: "Cybersecurity Analyst", company: "Equity Bank Kenya", location: "Nairobi", category: "Banking & Finance", salary: "KES 37,000 - 300,000", type: "Full-Time", desc: "Monitor threat intelligence feeds, conduct vulnerability assessments, and safeguard banking API infrastructure." },
@@ -56,12 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthUI();
     syncSidebarUserUI();
 
-    // Event listeners for filters
     document.getElementById('searchInput')?.addEventListener('input', filterAndRenderJobs);
     document.getElementById('locationSelect')?.addEventListener('change', filterAndRenderJobs);
     document.getElementById('categorySelect')?.addEventListener('change', filterAndRenderJobs);
 
-    // Sidebar Event Listener: Pre-fill Update Form when Update Tab is Clicked
     document.getElementById('tab-edit')?.addEventListener('click', () => {
         if (currentUser) {
             document.getElementById('updateEmail').value = currentUser.email || '';
@@ -72,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Sidebar Register Handler (Real-time Sync)
     document.getElementById('sidebarRegisterForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fullName = document.getElementById('regFullName').value.trim();
@@ -97,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert(`Welcome, ${fullName}! Your candidate account is active.`);
     });
 
-    // Sidebar Profile Update Handler (Real-time Sync)
     document.getElementById('sidebarUpdateForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('updateEmail').value.trim();
@@ -122,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("Profile details updated successfully!");
     });
 
-    // Sidebar Forgot Password Handler
     document.getElementById('sidebarForgotForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('forgotEmail').value;
@@ -142,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("Password reset request sent to administrator (ocholaemmanuelotieno@gmail.com).");
     });
 
-    // Application Form Submit Handler
     const applyForm = document.getElementById('applyJobForm');
     if (applyForm) {
         applyForm.addEventListener('submit', (e) => {
@@ -290,7 +283,6 @@ function openJobDetail(id) {
     document.getElementById('modalSalary').innerText = job.salary;
     document.getElementById('modalDescription').innerText = job.desc;
 
-    // Auto-fill application fields from user session if registered
     if (currentUser) {
         if (currentUser.fullName) document.getElementById('applicantName').value = currentUser.fullName;
         if (currentUser.email) document.getElementById('applicantEmail').value = currentUser.email;
@@ -357,7 +349,6 @@ function renderAdminTable() {
     `).join('');
 }
 
-// Hero Tag Helper Functions
 function quickFilter(category) {
     const catSelect = document.getElementById('categorySelect');
     if (catSelect) {
